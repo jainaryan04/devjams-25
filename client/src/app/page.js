@@ -1,9 +1,5 @@
-import FileExplorer from "./components/FileExplorer";
+import Menu from "./components/Menu";
 
 export default function Home() {
-  return (
-    <div className="">
-      <FileExplorer />
-    </div>
-  );
+  return <Menu />
 }
