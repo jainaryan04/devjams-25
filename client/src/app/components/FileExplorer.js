@@ -3,6 +3,9 @@ import React, { useState, useEffect } from "react";
 import { MessageCircle, X, Maximize, Send, Download, Folder } from "lucide-react";
 
 const FileExplorer = ({ files }) => {
+  const [expandedCategories, setExpandedCategories] = useState(new Set());
+  const [expandedTags, setExpandedTags] = useState(new Set());
+
   const getFileIcon = (name, category) => {
     if (category === "images") return "🖼️";
     if (name.endsWith(".md")) return "📝";
@@ -12,16 +15,112 @@ const FileExplorer = ({ files }) => {
     return "📄";
   };
 
+  const getCategoryIcon = (category) => {
+    if (category === "ppt") return "📁";
+    if (category === "vit_stuff") return "🎓";
+    if (category === "images") return "🖼️";
+    return "📁";
+  };
+
+  const getTagIcon = () => "📂";
+
+  const organizedFiles = files.reduce((acc, file) => {
+    if (!acc[file.category]) {
+      acc[file.category] = {};
+    }
+    if (!acc[file.category][file.tag]) {
+      acc[file.category][file.tag] = [];
+    }
+    acc[file.category][file.tag].push(file);
+    return acc;
+  }, {});
+
+  const toggleCategory = (category) => {
+    const newExpanded = new Set(expandedCategories);
+    if (newExpanded.has(category)) {
+      newExpanded.delete(category);
+      Object.keys(organizedFiles[category] || {}).forEach(tag => {
+        const tagKey = `${category}-${tag}`;
+        expandedTags.delete(tagKey);
+      });
+      setExpandedTags(new Set(expandedTags));
+    } else {
+      newExpanded.add(category);
+    }
+    setExpandedCategories(newExpanded);
+    
+    setTimeout(() => {
+      window.dispatchEvent(new Event("electron-resize"));
+    }, 50);
+  };
+
+  const toggleTag = (category, tag) => {
+    const tagKey = `${category}-${tag}`;
+    const newExpanded = new Set(expandedTags);
+    if (newExpanded.has(tagKey)) {
+      newExpanded.delete(tagKey);
+    } else {
+      newExpanded.add(tagKey);
+    }
+    setExpandedTags(newExpanded);
+    
+    setTimeout(() => {
+      window.dispatchEvent(new Event("electron-resize"));
+    }, 50);
+  };
+
   return (
-    <div className="bg-[#1e1e1e] text-gray-200 flex flex-col min-w-[250px]">
+    <div className="bg-[#1e1e1e] text-gray-200 flex flex-col min-w-[280px]" id="file-explorer">
       <div className="px-4 py-3 font-bold text-gray-100 border-b border-gray-700 flex items-center gap-2">
         <Folder size={20} /> Explorer
       </div>
-      <div className="overflow-y-auto text-sm max-h-[400px]">
-        {files.map((file, idx) => (
-          <div key={idx} className="px-4 py-2 flex items-center gap-2 hover:bg-[#2a2d2e] cursor-pointer">
-            <span>{getFileIcon(file.name, file.category)}</span>
-            <span className="truncate">{file.name}</span>
+      <div className="overflow-y-auto text-sm max-h-[500px]">
+        {Object.entries(organizedFiles).map(([category, tags]) => (
+          <div key={category} id={`category-${category}`}>
+            {/* Category Level */}
+            <div 
+              className="px-4 py-2 flex items-center gap-2 hover:bg-[#2a2d2e] cursor-pointer select-none"
+              onClick={() => toggleCategory(category)}
+            >
+              <span className="text-xs text-gray-400">
+                {expandedCategories.has(category) ? "▼" : "▶"}
+              </span>
+              <span>{getCategoryIcon(category)}</span>
+              <span className="font-medium capitalize">{category.replace('_', ' ')}</span>
+            </div>
+            
+            {/* Tags Level */}
+            {expandedCategories.has(category) && (
+              <div id={`category-${category}-expanded`}>
+                {Object.entries(tags).map(([tag, tagFiles]) => (
+                  <div key={`${category}-${tag}`} id={`tag-${category}-${tag}`}>
+                    <div 
+                      className="pl-8 pr-4 py-2 flex items-center gap-2 hover:bg-[#2a2d2e] cursor-pointer select-none"
+                      onClick={() => toggleTag(category, tag)}
+                    >
+                      <span className="text-xs text-gray-400">
+                        {expandedTags.has(`${category}-${tag}`) ? "▼" : "▶"}
+                      </span>
+                      <span>{getTagIcon()}</span>
+                      <span className="text-gray-300">{tag}</span>
+                      <span className="text-xs text-gray-500 ml-auto">({tagFiles.length})</span>
+                    </div>
+                    
+                    {/* Files Level */}
+                    {expandedTags.has(`${category}-${tag}`) && (
+                      <div id={`tag-${category}-${tag}-expanded`}>
+                        {tagFiles.map((file, idx) => (
+                          <div key={idx} className="pl-16 pr-4 py-1.5 flex items-center gap-2 hover:bg-[#2a2d2e] cursor-pointer text-gray-300">
+                            <span>{getFileIcon(file.name, file.category)}</span>
+                            <span className="truncate text-sm">{file.name}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         ))}
       </div>
@@ -33,15 +132,96 @@ export default function Menu() {
   const [view, setView] = useState("chat");
   const [messages, setMessages] = useState([]);
 
-  const files = [
-    { name: "README.md", category: "documents" },
-    { name: "notes.txt", category: "documents" },
-    { name: "photo.jpg", category: "images" },
-    { name: "presentation.pptx", category: "documents" },
-    { name: "config.json", category: "documents" },
-    { name: "screenshot.png", category: "images" },
-  ];
-
+  const files=[
+    {
+        "name": "1.pptx",
+        "path": "/Users/vishwajithp/storage/ppt/compiler/1.pptx",
+        "category": "ppt",
+        "tag": "compiler",
+        "description": "PowerPoint presentation 1",
+        "last_accessed": "2025-09-21 22:51:09"
+    },
+    {
+        "name": "2.pdf",
+        "path": "/Users/vishwajithp/storage/ppt/compiler/2.pdf",
+        "category": "ppt",
+        "tag": "compiler",
+        "description": "PDF document 2",
+        "last_accessed": "2025-09-21 22:51:09"
+    },
+    {
+        "name": "3.pptx",
+        "path": "/Users/vishwajithp/storage/ppt/compiler/3.pptx",
+        "category": "ppt",
+        "tag": "compiler",
+        "description": "PowerPoint presentation 3",
+        "last_accessed": "2025-09-21 22:51:09"
+    },
+    {
+        "name": "4.pptx",
+        "path": "/Users/vishwajithp/storage/ppt/compiler/4.pptx",
+        "category": "ppt",
+        "tag": "compiler",
+        "description": "PowerPoint presentation 4",
+        "last_accessed": "2025-09-21 22:51:09"
+    },
+    {
+        "name": "5.pdf",
+        "path": "/Users/vishwajithp/storage/ppt/compiler/5.pdf",
+        "category": "ppt",
+        "tag": "compiler",
+        "description": "PDF document 5",
+        "last_accessed": "2025-09-21 22:51:09"
+    },
+    {
+        "name": "BCSE355L_AWS-SOLUTIONS-ARCHITECT_TH_1.0_80_BCSE355L.pdf",
+        "path": "/Users/vishwajithp/storage/vit_stuff/aws/BCSE355L_AWS-SOLUTIONS-ARCHITECT_TH_1.0_80_BCSE355L.pdf",
+        "category": "vit_stuff",
+        "tag": "aws",
+        "description": "AWS Solutions Architect Reference Material",
+        "last_accessed": "2025-09-21 22:52:19"
+    },
+    {
+        "name": "FALLSEM2024-25_BCSE355L_TH_VL2024250102027_2024-07-15_Reference-Material-I.pdf",
+        "path": "/Users/vishwajithp/storage/vit_stuff/aws/FALLSEM2024-25_BCSE355L_TH_VL2024250102027_2024-07-15_Reference-Material-I.pdf",
+        "category": "vit_stuff",
+        "tag": "aws",
+        "description": "Reference Material from FALLSEM2024-25",
+        "last_accessed": "2025-09-21 22:52:19"
+    },
+    {
+        "name": "FALLSEM2024-25_BCSE355L_TH_VL2024250102027_2024-07-19_Reference-Material-I.pdf",
+        "path": "/Users/vishwajithp/storage/vit_stuff/aws/FALLSEM2024-25_BCSE355L_TH_VL2024250102027_2024-07-19_Reference-Material-I.pdf",
+        "category": "vit_stuff",
+        "tag": "aws",
+        "description": "Reference Material from FALLSEM2024-25",
+        "last_accessed": "2025-09-21 22:52:19"
+    },
+    {
+        "name": "FALLSEM2024-25_BCSE355L_TH_VL2024250102027_2024-07-22_Reference-Material-I.pdf",
+        "path": "/Users/vishwajithp/storage/vit_stuff/aws/FALLSEM2024-25_BCSE355L_TH_VL2024250102027_2024-07-22_Reference-Material-I.pdf",
+        "category": "vit_stuff",
+        "tag": "aws",
+        "description": "Reference Material from FALLSEM2024-25",
+        "last_accessed": "2025-09-21 22:52:19"
+    },
+    {
+        "name": "FALLSEM2024-25_BCSE355L_TH_VL2024250102027_2024-07-26_Reference-Material-I.pdf",
+        "path": "/Users/vishwajithp/storage/vit_stuff/aws/FALLSEM2024-25_BCSE355L_TH_VL2024250102027_2024-07-26_Reference-Material-I.pdf",
+        "category": "vit_stuff",
+        "tag": "aws",
+        "description": "Reference Material from FALLSEM2024-25",
+        "last_accessed": "2025-09-21 22:52:19"
+    },
+    {
+        "name": "FALLSEM2024-25_BCSE355L_TH_VL2024250102027_2024-09-09_Reference-Material-I.pdf",
+        "path": "/Users/vishwajithp/storage/vit_stuff/aws/FALLSEM2024-25_BCSE355L_TH_VL2024250102027_2024-09-09_Reference-Material-I.pdf",
+        "category": "vit_stuff",
+        "tag": "aws",
+        "description": "Reference Material from FALLSEM2024-25",
+        "last_accessed": "2025-09-21 22:52:19"
+    }
+]
   const triggerResize = () => {
     setTimeout(() => {
       window.dispatchEvent(new Event("electron-resize"));
@@ -200,7 +380,7 @@ export default function Menu() {
                     }}
                   />
                   <button
-                    className="p-3 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors"
+                    className="p-3 bg-blue-600 rounded-full hover:bg-blue-700 transition-colors"
                     onClick={() => {
                       const input = document.querySelector("input[placeholder='Ask about your files...']");
                       handleSendMessage(input.value);
