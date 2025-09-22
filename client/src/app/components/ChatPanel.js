@@ -25,6 +25,7 @@ export default function ChatPanel({ view, changeView, messages, handleSendMessag
   const handleFileClick = async (file) => {
     try {
       const viewUrl = `http://localhost:8000${file.url}`;
+      console.log(viewUrl, 'view');
       window.open(viewUrl, '_blank');
     } catch (error) {
       console.error('Error opening file:', error);

@@ -1,0 +1,80 @@
+# ------------------------
+# Python
+# ------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+*.manifest
+*.spec
+
+# ------------------------
+# Virtual Environments
+# ------------------------
+# common names: venv, env, .env, .venv
+venv/
+env/
+.venv/
+.env/
+
+# ------------------------
+# Jupyter Notebooks
+# ------------------------
+.ipynb_checkpoints/
+
+# ------------------------
+# PyCharm / VSCode
+# ------------------------
+.idea/
+.vscode/
+
+# ------------------------
+# macOS / Linux / Windows
+# ------------------------
+.DS_Store
+Thumbs.db
+*.swp
+
+# ------------------------
+# Logs / databases / caches
+# ------------------------
+*.log
+*.sqlite3
+*.db
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.cache
+*.bak
+
+# ------------------------
+# Environment / secrets
+# ------------------------
+*.env
+.env.*
+secrets.json
+config.json
+credentials.json
+
+# ------------------------
+# Output / build / dist
+# ------------------------
+build/
+dist/
+*.egg-info/
+.eggs/
+*.whl
+
+# ------------------------
+# Coverage / test outputs
+# ------------------------
+.coverage
+.coverage.*
+htmlcov/
+*.cover
+*.py,cover
+nosetests.xml
+pytest_cache/
