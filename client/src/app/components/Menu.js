@@ -46,13 +46,19 @@ export default function Menu() {
   return (
     <div className="relative">
       {view === VIEW.CHAT && (
-        <div key="chat-container" style={{ display: 'inline-block', width: 'auto' }}>
-          <ChatPanel 
-            view={view} 
-            changeView={changeView} 
-            messages={messages}
-            handleSendMessage={handleSendMessage}
-          />
+        <div key="chat-container" 
+        className="inline-flex bg-white rounded-lg shadow-2xl overflow-hidden" 
+          id="chat-view"
+          style={{ width: 'auto', minWidth: 'max-content' }}
+        >
+          <div style={{ flexShrink: 0 }}>
+            <ChatPanel 
+              view={view} 
+              changeView={changeView} 
+              messages={messages}
+              handleSendMessage={handleSendMessage}
+            />
+          </div>
         </div>
       )}
 
@@ -68,7 +74,7 @@ export default function Menu() {
               <FileExplorer files={files} />
             </div>
           ) : (
-            <div className="flex items-center justify-center p-4 text-gray-500" style={{ minWidth: '200px' }}>
+            <div className="flex items-center justify-center p-4 text-gray-500" style={{ minWidth: '500px' }}>
               Storage is empty
             </div>
           )}
