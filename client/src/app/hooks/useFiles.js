@@ -9,7 +9,7 @@ export const useFiles = () => {
 
   const fetchFiles = useCallback(async () => {
     try {
-      const res = await axios.get(`${BACKEND_URL}/files`); // backend endpoint to get all files
+      const res = await axios.get(`${BACKEND_URL}/files`);
       setFiles(res.data.files || []);
     } catch (err) {
       console.error("Error fetching files:", err);
@@ -18,7 +18,9 @@ export const useFiles = () => {
 
   useEffect(() => {
     fetchFiles();
+    const interval = setInterval(fetchFiles, 5000);
+    return () => clearInterval(interval); 
   }, [fetchFiles]);
 
-  return [files, fetchFiles]; // return both files and refresh function
+  return [files, fetchFiles];
 };

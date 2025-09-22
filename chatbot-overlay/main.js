@@ -10,14 +10,15 @@ ipcMain.on("electron-resize", (event, { width, height }) => {
   const primaryDisplay = screen.getPrimaryDisplay();
   const { width: screenWidth, height: screenHeight } = primaryDisplay.workArea;
 
+  const fixedHeight = 500;
   const x = screenWidth - width - 24;
-  const y = screenHeight - height - 24;
+  const y = screenHeight - fixedHeight - 24;
 
   win.setBounds({
     x: Math.max(0, x),
     y: Math.max(0, y),
     width: Math.max(width, 64),
-    height: Math.max(height, 64),
+    height: fixedHeight,
   });
 });
 
@@ -34,7 +35,7 @@ function createWindow() {
       preload: path.join(__dirname, "preload.js"),
     },
     show: false,
-  });
+  });  
 
   win.loadURL("http://localhost:3000");
 
