@@ -69,7 +69,7 @@ export default function Menu() {
             </div>
           ) : (
             <div className="flex items-center justify-center p-4 text-gray-500" style={{ minWidth: '200px' }}>
-              Loading files...
+              Storage is empty
             </div>
           )}
 
