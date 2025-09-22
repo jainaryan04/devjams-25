@@ -83,7 +83,7 @@ export const FileExplorer = ({ files }) => {
   };
 
   return (
-    <div className="bg-[#1e1e1e] text-gray-200 flex flex-col min-w-[280px]" id="file-explorer">
+    <div className="bg-[#1e1e1e] text-gray-200 flex flex-col min-w-[280px] min-h-[500px]" id="file-explorer">
       <div className="px-4 py-3 font-bold text-gray-100 border-b border-gray-700 flex items-center gap-2"><Folder size={20} /> Explorer</div>
       <div className="overflow-y-auto text-sm max-h-[500px]">
         {Object.entries(organizedFiles).map(([category, tags]) => (
